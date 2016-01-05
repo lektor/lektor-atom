@@ -9,7 +9,7 @@ Inspired by the [atom-feed-support](https://github.com/lektor/lektor-website/tre
 Add lektor-atom to your project from command line:
 
 ```
-lektor plugins add atom
+lektor plugins add lektor-atom
 ```
 
 See [the Lektor documentation for more instructions on installing plugins](https://www.getlektor.com/docs/plugins/).
