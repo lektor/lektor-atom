@@ -2,6 +2,14 @@ import os
 import pytest
 import shutil
 import tempfile
+from datetime import datetime
+
+from lektor.types import Type
+
+
+class DatetimeType(Type):
+    def value_from_raw(self, raw):
+        return datetime.strptime(raw.value, '%Y-%m-%d %H:%M:%S')
 
 
 @pytest.fixture(scope='function')
@@ -14,7 +22,9 @@ def project(request):
 @pytest.fixture(scope='function')
 def env(request, project):
     from lektor.environment import Environment
-    return Environment(project)
+    e = Environment(project)
+    e.types['datetime'] = DatetimeType  # As if we had a datetime plugin.
+    return e
 
 
 @pytest.fixture(scope='function')
