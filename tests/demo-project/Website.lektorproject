@@ -1,0 +1,6 @@
+[project]
+name = Demo Project
+url = http://x.com
+
+[packages]
+lektor-atom

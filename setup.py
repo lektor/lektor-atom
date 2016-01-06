@@ -8,6 +8,7 @@ setup(
     license='MIT',
     py_modules=['lektor_atom'],
     install_requires=['MarkupSafe', 'Lektor'],
+    tests_require=['lxml', 'pytest'],
     entry_points={
         'lektor.plugins': [
             'atom = lektor_atom:AtomPlugin',
