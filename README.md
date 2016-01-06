@@ -72,6 +72,8 @@ blog_author_field = writer
 blog_summary_field = short_description
 ```
 
+See [tests/demo-project/configs/atom.ini](https://github.com/ajdavis/lektor-atom/blob/master/tests/demo-project/configs/atom.ini) for a complete example.
+
 ### Filtering items
 
 By default, lektor-atom gets the source at `source_path` and includes all its children in the feed. If you set `item_model`, lektor-atom includes only the children with that data model.
