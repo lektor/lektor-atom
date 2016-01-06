@@ -42,15 +42,15 @@ class AtomFeedSource(VirtualSourceObject):
             raise AttributeError(item)
 
 
+def get(item, field, default=None):
+    if field in item:
+        return item[field]
+    return default
+
+
+
 def get_id(s):
     return uuid.UUID(bytes=hashlib.md5(s).digest(), version=3).urn
-
-
-def get_summary(blog, blog_summary_field):
-    try:
-        return blog[blog_summary_field] or ''
-    except KeyError:
-        return ''
 
 
 def get_item_title(item, field):
@@ -61,7 +61,7 @@ def get_item_title(item, field):
 
 def get_item_body(item, field):
     if field not in item:
-        raise RuntimeError('Body field not found: %r' % field)
+        raise RuntimeError('Body field %r not found in %r' % (field, item))
     with get_ctx().changed_base_url(item.url_path):
         return unicode(escape(item[field]))
 
@@ -87,16 +87,16 @@ class AtomFeedBuilderProgram(BuildProgram):
         feed_source = self.source
         blog = feed_source.parent
 
-        summary = get_summary(blog, feed_source.blog_summary_field)
+        summary = get(blog, feed_source.blog_summary_field) or ''
         subtitle_type = ('html' if hasattr(summary, '__html__') else 'text')
-        blog_author = unicode(blog[feed_source.blog_author_field] or '')
+        blog_author = unicode(get(blog, feed_source.blog_author_field) or '')
         generator = ('Lektor Atom Plugin',
-                     'https://www.getlektor.com/',
+                     'https://github.com/ajdavis/lektor-atom',
                      pkg_resources.get_distribution('lektor-atom').version)
 
         feed = AtomFeed(
-            title=blog[feed_source.item_title_field] or 'Feed',
-            subtitle=unicode(summary or ''),
+            title=feed_source.feed_name,
+            subtitle=unicode(summary),
             subtitle_type=subtitle_type,
             author=blog_author,
             feed_url=url_to(feed_source, external=True),
@@ -118,7 +118,9 @@ class AtomFeedBuilderProgram(BuildProgram):
         items = items.order_by(order_by).limit(int(feed_source.limit))
 
         for item in items:
-            item_author = item[feed_source.item_author_field] or blog_author
+            item_author_field = feed_source.item_author_field
+            item_author = get(item, item_author_field) or blog_author
+
             feed.add(
                 get_item_title(item, feed_source.item_title_field),
                 get_item_body(item, feed_source.item_body_field),

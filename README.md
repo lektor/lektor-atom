@@ -19,13 +19,13 @@ See [the Lektor documentation for more instructions on installing plugins](https
 For each feed you want to publish, add a section to `configs/atom.ini`. For example, a blog with a feed of all recent posts, and a feed of recent posts about coffee:
 
 ```
-[main]
+[My Blog]
 source_path = /
 url_path = /feed.xml
 items = site.query('/').filter(F.type == 'post')
 item_model = blog-post
 
-[coffee]
+[My Blog: Coffee Articles]
 source_path = /
 url_path = /category/python/feed.xml
 items = site.query('/blog').filter(F.categories.contains('coffee'))
