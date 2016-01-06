@@ -10,6 +10,8 @@ def test_typical_feed(pad, builder):
     feed = objectify.parse(open(feed_path)).getroot()
     
     assert 'Feed One' == feed.title
+    assert 'My Summary' == feed.subtitle
+    assert 'text' == feed.subtitle.attrib['type']
     assert 'A. Jesse Jiryu Davis' == feed.author.name
     assert 'http://x.com/typical-blog/' == feed.link[0].attrib['href']
     assert 'http://x.com/typical-blog/feed.xml' == feed.link[1].attrib['href']
