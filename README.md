@@ -19,24 +19,29 @@ See [the Lektor documentation for more instructions on installing plugins](https
 For each feed you want to publish, add a section to `configs/atom.ini`. For example, a blog with a feed of all recent posts, and a feed of recent posts about coffee:
 
 ```
-[My Blog]
+[blog]
+name = My Blog
 source_path = /
 url_path = /feed.xml
 items = site.query('/').filter(F.type == 'post')
 item_model = blog-post
 
-[My Blog: Coffee Articles]
+[coffee]
+name = My Blog: Articles About Coffee
 source_path = /
-url_path = /category/python/feed.xml
+url_path = /category/coffee/feed.xml
 items = site.query('/blog').filter(F.categories.contains('coffee'))
 item_model = blog-post
 ```
+
+The section names, like `blog` and `coffee`, are just used as internal identifiers.
 
 ### Options
 
 |Option               | Default    | Description
 |---------------------|------------|-------------------------------------------------------------------------
 |source\_path         | /          | Where in the content directory to find items' parent source
+|name                 |            | Feed name: default is section name
 |filename             | feed.xml   | Name of generated Atom feed file
 |url\_path            |            | Feed's URL on your site: default is source's URL path plus the filename
 |blog\_author\_field  | author     | Name of source's author field
@@ -51,7 +56,7 @@ item_model = blog-post
 
 ### Customizing the plugin for your models
 
-Use the "_field" options to tell lektor-atom how to read your items. For example, if your site's model is:
+Use the field options to tell lektor-atom how to read your items. For example, if your site's model is:
 
 ```
 [model]

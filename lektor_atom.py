@@ -1,6 +1,5 @@
 # -*- coding: utf-8 -*-
 import hashlib
-import urllib
 import uuid
 from datetime import datetime, date
 from functools import partial
@@ -19,18 +18,18 @@ from markupsafe import escape
 
 
 class AtomFeedSource(VirtualSourceObject):
-    def __init__(self, parent, feed_name, plugin):
+    def __init__(self, parent, feed_id, plugin):
         VirtualSourceObject.__init__(self, parent)
         self.plugin = plugin
-        self.feed_name = feed_name
+        self.feed_id = feed_id
 
     @property
     def path(self):
-        return self.parent.path + '@atom/' + urllib.quote(self.feed_name)
+        return self.parent.path + '@atom/' + self.feed_id
 
     @property
     def url_path(self):
-        p = self.plugin.get_atom_config(self.feed_name, 'url_path')
+        p = self.plugin.get_atom_config(self.feed_id, 'url_path')
         if p:
             return p
 
@@ -38,9 +37,13 @@ class AtomFeedSource(VirtualSourceObject):
 
     def __getattr__(self, item):
         try:
-            return self.plugin.get_atom_config(self.feed_name, item)
+            return self.plugin.get_atom_config(self.feed_id, item)
         except KeyError:
             raise AttributeError(item)
+
+    @property
+    def feed_name(self):
+        return self.plugin.get_atom_config(self.feed_id, 'name') or self.feed_id
 
 
 def get(item, field, default=None):
@@ -142,6 +145,7 @@ class AtomPlugin(Plugin):
 
     defaults = {
         'source_path': '/',
+        'name': None,
         'url_path': None,
         'filename': 'feed.xml',
         'blog_author_field': 'author',
@@ -155,28 +159,31 @@ class AtomPlugin(Plugin):
         'item_model': None,
     }
 
-    def get_atom_config(self, feed, key):
+    def get_atom_config(self, feed_id, key):
         default_value = self.defaults[key]
-        return self.get_config().get('%s.%s' % (feed, key), default_value)
+        return self.get_config().get('%s.%s' % (feed_id, key), default_value)
 
     def on_setup_env(self, **extra):
         self.env.add_build_program(AtomFeedSource, AtomFeedBuilderProgram)
 
-        def generate_feed(name, source):
-            if source.path == self.get_atom_config(name, 'source_path'):
-                yield AtomFeedSource(source, name, self)
-
         @self.env.virtualpathresolver('atom')
         def feed_path_resolver(node, pieces):
-            if len(pieces) == 1:
-                feed_name_quoted = pieces[0]
-            else:
+            if len(pieces) != 1:
                 return
 
-            for name in self.get_config().sections():
-                if (node.path == self.get_atom_config(name, 'source_path') and
-                        urllib.quote(name) == feed_name_quoted):
-                    return AtomFeedSource(node, name, plugin=self)
+            _id = pieces[0]
 
-        for feed_name in self.get_config().sections():
-            self.env.generator(partial(generate_feed, feed_name))
+            config = self.get_config()
+            if _id not in config.sections():
+                return
+
+            source_path = self.get_atom_config(_id, 'source_path')
+            if node.path == source_path:
+                return AtomFeedSource(node, _id, plugin=self)
+
+        def generate_feed(_id, source):
+            if source.path == self.get_atom_config(_id, 'source_path'):
+                yield AtomFeedSource(source, _id, self)
+
+        for feed_id in self.get_config().sections():
+            self.env.generator(partial(generate_feed, feed_id))
