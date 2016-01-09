@@ -56,3 +56,12 @@ def builder(request, pad):
 def F():
     from lektor.db import F
     return F
+
+
+@pytest.fixture(scope='function')
+def reporter(request, env):
+    from lektor.reporter import BufferReporter
+    r = BufferReporter(env)
+    r.push()
+    request.addfinalizer(r.pop)
+    return r

@@ -90,3 +90,20 @@ def test_virtual_resolver(pad, builder):
     assert feed and feed.feed_name == 'Feed Three'
     url_path = pad.get('custom-blog/post1').url_to(feed)
     assert url_path == '../../custom-blog/atom.xml'
+
+
+def test_dependencies(pad, builder, reporter):
+    reporter.clear()
+    builder.build(pad.get('typical-blog@atom/feed-one'))
+
+    assert set(reporter.get_recorded_dependencies()) == set([
+        'Website.lektorproject',
+        'content/typical-blog',
+        'content/typical-blog/contents.lr',
+        'content/typical-blog/post1/contents.lr',
+        'content/typical-blog/post2/contents.lr',
+        'models/blog.ini',
+        'models/blog-post.ini',
+        'configs/atom.ini',
+    ])
+
