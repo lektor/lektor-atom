@@ -78,15 +78,15 @@ def test_custom_feed(pad, builder):
 
 
 def test_virtual_resolver(pad, builder):
-    feed = pad.get('typical-blog@feed.xml')
+    feed = pad.get('typical-blog@atom/Feed%20One')
     assert feed and feed.feed_name == 'Feed One'
     url_path = pad.get('typical-blog/post1').url_to(feed)
     assert url_path == '../../typical-blog/feed.xml'
 
-    feed = pad.get('typical-blog2@feed.xml')
+    feed = pad.get('typical-blog2@atom/Feed%20Two')
     assert feed and feed.feed_name == 'Feed Two'
 
-    feed = pad.get('custom-blog@atom.xml')
+    feed = pad.get('custom-blog@atom/Feed%20Three')
     assert feed and feed.feed_name == 'Feed Three'
     url_path = pad.get('custom-blog/post1').url_to(feed)
     assert url_path == '../../custom-blog/atom.xml'

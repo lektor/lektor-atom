@@ -1,5 +1,6 @@
 # -*- coding: utf-8 -*-
 import hashlib
+import urllib
 import uuid
 from datetime import datetime, date
 from functools import partial
@@ -25,7 +26,7 @@ class AtomFeedSource(VirtualSourceObject):
 
     @property
     def path(self):
-        return '%s@%s' % (self.parent.path, self.filename)
+        return self.parent.path + '@atom/' + urllib.quote(self.feed_name)
 
     @property
     def url_path(self):
@@ -165,18 +166,17 @@ class AtomPlugin(Plugin):
             if source.path == self.get_atom_config(name, 'source_path'):
                 yield AtomFeedSource(source, name, self)
 
-        filenames = set()
+        @self.env.virtualpathresolver('atom')
+        def feed_path_resolver(node, pieces):
+            if len(pieces) == 1:
+                feed_name_quoted = pieces[0]
+            else:
+                return
+
+            for name in self.get_config().sections():
+                if (node.path == self.get_atom_config(name, 'source_path') and
+                        urllib.quote(name) == feed_name_quoted):
+                    return AtomFeedSource(node, name, plugin=self)
 
         for feed_name in self.get_config().sections():
             self.env.generator(partial(generate_feed, feed_name))
-            filename = self.get_atom_config(feed_name, 'filename')
-            if filename not in filenames:
-                resolver = partial(self.feed_path_resolver, filename)
-                self.env.virtualpathresolver(filename)(resolver)
-                filenames.add(filename)
-
-    def feed_path_resolver(self, filename, node, pieces):
-        for feed_name in self.get_config().sections():
-            if (node.path == self.get_atom_config(feed_name, 'source_path') and
-                    filename == self.get_atom_config(feed_name, 'filename')):
-                return AtomFeedSource(node, feed_name, plugin=self)
