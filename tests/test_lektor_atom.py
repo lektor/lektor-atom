@@ -46,7 +46,7 @@ def test_custom_feed(pad, builder):
     feed_path = os.path.join(builder.destination_path, 'custom-blog/atom.xml')
     feed = objectify.parse(open(feed_path)).getroot()
     
-    assert 'Feed Two' == feed.title
+    assert 'Feed Three' == feed.title
     assert '<p>My Description</p>' == str(feed.subtitle).strip()
     assert 'html' == feed.subtitle.attrib['type']
     assert 'A. Jesse Jiryu Davis' == feed.author.name
@@ -79,11 +79,14 @@ def test_custom_feed(pad, builder):
 
 def test_virtual_resolver(pad, builder):
     feed = pad.get('typical-blog@feed.xml')
-    assert feed
+    assert feed and feed.feed_name == 'Feed One'
     url_path = pad.get('typical-blog/post1').url_to(feed)
     assert url_path == '../../typical-blog/feed.xml'
 
+    feed = pad.get('typical-blog2@feed.xml')
+    assert feed and feed.feed_name == 'Feed Two'
+
     feed = pad.get('custom-blog@atom.xml')
-    assert feed
+    assert feed and feed.feed_name == 'Feed Three'
     url_path = pad.get('custom-blog/post1').url_to(feed)
     assert url_path == '../../custom-blog/atom.xml'

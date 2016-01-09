@@ -165,16 +165,18 @@ class AtomPlugin(Plugin):
             if source.path == self.get_atom_config(name, 'source_path'):
                 yield AtomFeedSource(source, name, self)
 
-        def feed_path_resolver(name, node, pieces):
-            if node.path == self.get_atom_config(name, 'source_path'):
-                return AtomFeedSource(node, name, plugin=self)
-
         filenames = set()
 
         for feed_name in self.get_config().sections():
             self.env.generator(partial(generate_feed, feed_name))
             filename = self.get_atom_config(feed_name, 'filename')
             if filename not in filenames:
-                resolver = partial(feed_path_resolver, feed_name)
+                resolver = partial(self.feed_path_resolver, filename)
                 self.env.virtualpathresolver(filename)(resolver)
                 filenames.add(filename)
+
+    def feed_path_resolver(self, filename, node, pieces):
+        for feed_name in self.get_config().sections():
+            if (node.path == self.get_atom_config(feed_name, 'source_path') and
+                    filename == self.get_atom_config(feed_name, 'filename')):
+                return AtomFeedSource(node, feed_name, plugin=self)
