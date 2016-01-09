@@ -48,7 +48,6 @@ def get(item, field, default=None):
     return default
 
 
-
 def get_id(s):
     return uuid.UUID(bytes=hashlib.md5(s).digest(), version=3).urn
 
