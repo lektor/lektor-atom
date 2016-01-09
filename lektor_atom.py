@@ -181,9 +181,8 @@ class AtomPlugin(Plugin):
             if node.path == source_path:
                 return AtomFeedSource(node, _id, plugin=self)
 
-        def generate_feed(_id, source):
-            if source.path == self.get_atom_config(_id, 'source_path'):
-                yield AtomFeedSource(source, _id, self)
-
-        for feed_id in self.get_config().sections():
-            self.env.generator(partial(generate_feed, feed_id))
+        @self.env.generator
+        def generate_feeds(source):
+            for _id in self.get_config().sections():
+                if source.path == self.get_atom_config(_id, 'source_path'):
+                    yield AtomFeedSource(source, _id, self)
