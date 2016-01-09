@@ -75,3 +75,15 @@ def test_custom_feed(pad, builder):
     base = post1.attrib['{http://www.w3.org/XML/1998/namespace}base']
     assert 'http://x.com/custom-blog/post1/' == base
     assert 'A. Jesse Jiryu Davis' == post1.author.name
+
+
+def test_virtual_resolver(pad, builder):
+    feed = pad.get('typical-blog@feed.xml')
+    assert feed
+    url_path = pad.get('typical-blog/post1').url_to(feed)
+    assert url_path == '../../typical-blog/feed.xml'
+
+    feed = pad.get('custom-blog@atom.xml')
+    assert feed
+    url_path = pad.get('custom-blog/post1').url_to(feed)
+    assert url_path == '../../custom-blog/atom.xml'

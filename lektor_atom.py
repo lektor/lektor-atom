@@ -1,6 +1,5 @@
 # -*- coding: utf-8 -*-
 import hashlib
-import posixpath
 import uuid
 from datetime import datetime, date
 from functools import partial
@@ -12,6 +11,7 @@ from lektor.environment import Expression
 from lektor.pluginsystem import Plugin
 from lektor.context import get_ctx, url_to
 from lektor.sourceobj import VirtualSourceObject
+from lektor.utils import build_url
 
 from werkzeug.contrib.atom import AtomFeed
 from markupsafe import escape
@@ -25,7 +25,7 @@ class AtomFeedSource(VirtualSourceObject):
 
     @property
     def path(self):
-        return posixpath.join(self.parent.path, self.filename)
+        return '%s@%s' % (self.parent.path, self.filename)
 
     @property
     def url_path(self):
@@ -33,7 +33,7 @@ class AtomFeedSource(VirtualSourceObject):
         if p:
             return p
 
-        return posixpath.join(self.parent.url_path, self.filename)
+        return build_url([self.parent.url_path, self.filename])
 
     def __getattr__(self, item):
         try:
@@ -165,5 +165,16 @@ class AtomPlugin(Plugin):
             if source.path == self.get_atom_config(name, 'source_path'):
                 yield AtomFeedSource(source, name, self)
 
+        def feed_path_resolver(name, node, pieces):
+            if node.path == self.get_atom_config(name, 'source_path'):
+                return AtomFeedSource(node, name, plugin=self)
+
+        filenames = set()
+
         for feed_name in self.get_config().sections():
             self.env.generator(partial(generate_feed, feed_name))
+            filename = self.get_atom_config(feed_name, 'filename')
+            if filename not in filenames:
+                resolver = partial(feed_path_resolver, feed_name)
+                self.env.virtualpathresolver(filename)(resolver)
+                filenames.add(filename)
