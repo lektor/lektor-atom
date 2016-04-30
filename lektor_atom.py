@@ -79,6 +79,11 @@ def get_item_updated(item, field):
     return rv
 
 
+def xstr(s):
+    if s is None:
+        return ''
+    return str(s)
+
 class AtomFeedBuilderProgram(BuildProgram):
     def produce_artifacts(self):
         self.declare_artifact(
@@ -125,7 +130,7 @@ class AtomFeedBuilderProgram(BuildProgram):
             item_author = get(item, item_author_field) or blog_author
 
             feed.add(
-                get_item_title(item, feed_source.item_title_field),
+                xstr(get_item_title(item, feed_source.item_title_field)),
                 get_item_body(item, feed_source.item_body_field),
                 xml_base=url_to(item, external=True),
                 url=url_to(item, external=True),
