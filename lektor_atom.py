@@ -2,7 +2,7 @@
 import hashlib
 import uuid
 from datetime import datetime, date
-from functools import partial
+from functools import partial, wraps
 
 import pkg_resources
 from lektor.build_programs import BuildProgram
@@ -55,7 +55,19 @@ def get(item, field, default=None):
 def get_id(s):
     return uuid.UUID(bytes=hashlib.md5(s).digest(), version=3).urn
 
+def fix_empty_item_title(func):
+    @wraps(func)
+    def wrapper(*args, **kwds):
+        s = func(*args, **kwds)
+        if s is None:
+            return ' '
+        if s.strip() == '':
+            return '  '
+        return s
+    return wrapper
 
+
+@fix_empty_item_title
 def get_item_title(item, field):
     if field in item:
         return item[field]
@@ -78,11 +90,6 @@ def get_item_updated(item, field):
         rv = datetime(*rv.timetuple()[:3])
     return rv
 
-
-def xstr(s):
-    if s is None:
-        return ''
-    return str(s)
 
 class AtomFeedBuilderProgram(BuildProgram):
     def produce_artifacts(self):
@@ -130,7 +137,7 @@ class AtomFeedBuilderProgram(BuildProgram):
             item_author = get(item, item_author_field) or blog_author
 
             feed.add(
-                xstr(get_item_title(item, feed_source.item_title_field)),
+                get_item_title(item, feed_source.item_title_field),
                 get_item_body(item, feed_source.item_body_field),
                 xml_base=url_to(item, external=True),
                 url=url_to(item, external=True),
