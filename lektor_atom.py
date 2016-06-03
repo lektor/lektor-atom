@@ -1,4 +1,5 @@
 # -*- coding: utf-8 -*-
+import sys
 import hashlib
 import uuid
 from datetime import datetime, date
@@ -15,6 +16,13 @@ from lektor.utils import build_url
 
 from werkzeug.contrib.atom import AtomFeed
 from markupsafe import escape
+
+PY2 = sys.version_info[0] == 2
+
+if PY2:
+    text_type = unicode
+else:
+    text_type = str
 
 
 class AtomFeedSource(VirtualSourceObject):
@@ -53,7 +61,8 @@ def get(item, field, default=None):
 
 
 def get_id(s):
-    return uuid.UUID(bytes=hashlib.md5(s).digest(), version=3).urn
+    b = hashlib.md5(s.encode('utf-8')).digest()
+    return uuid.UUID(bytes=b, version=3).urn
 
 
 def get_item_title(item, field):
@@ -66,7 +75,7 @@ def get_item_body(item, field):
     if field not in item:
         raise RuntimeError('Body field %r not found in %r' % (field, item))
     with get_ctx().changed_base_url(item.url_path):
-        return unicode(escape(item[field]))
+        return text_type(escape(item[field]))
 
 
 def get_item_updated(item, field):
@@ -92,14 +101,14 @@ class AtomFeedBuilderProgram(BuildProgram):
 
         summary = get(blog, feed_source.blog_summary_field) or ''
         subtitle_type = ('html' if hasattr(summary, '__html__') else 'text')
-        blog_author = unicode(get(blog, feed_source.blog_author_field) or '')
+        blog_author = text_type(get(blog, feed_source.blog_author_field) or '')
         generator = ('Lektor Atom Plugin',
                      'https://github.com/ajdavis/lektor-atom',
                      pkg_resources.get_distribution('lektor-atom').version)
 
         feed = AtomFeed(
             title=feed_source.feed_name,
-            subtitle=unicode(summary),
+            subtitle=text_type(summary),
             subtitle_type=subtitle_type,
             author=blog_author,
             feed_url=url_to(feed_source, external=True),
