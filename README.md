@@ -100,3 +100,9 @@ Link to the feed in a template like this:
 {{ 'blog@atom/main'|url }}
 ```
 
+# Changes
+
+2016-06-02: Version 0.2. Python 3 compatibility (thanks to Dan Bauman),
+colored error output during build, fix for Markdown-formatted item subtitles.
+
+2016-01-09: Version 0.1, initial release.
