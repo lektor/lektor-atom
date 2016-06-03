@@ -100,7 +100,11 @@ class AtomFeedBuilderProgram(BuildProgram):
         blog = feed_source.parent
 
         summary = get(blog, feed_source.blog_summary_field) or ''
-        subtitle_type = ('html' if hasattr(summary, '__html__') else 'text')
+        if hasattr(summary, '__html__'):
+            subtitle_type = 'html'
+            summary = text_type(summary.__html__())
+        else:
+            subtitle_type = 'text'
         blog_author = text_type(get(blog, feed_source.blog_author_field) or '')
         generator = ('Lektor Atom Plugin',
                      'https://github.com/ajdavis/lektor-atom',
@@ -108,7 +112,7 @@ class AtomFeedBuilderProgram(BuildProgram):
 
         feed = AtomFeed(
             title=feed_source.feed_name,
-            subtitle=text_type(summary),
+            subtitle=summary,
             subtitle_type=subtitle_type,
             author=blog_author,
             feed_url=url_to(feed_source, external=True),
