@@ -3,8 +3,8 @@ import sys
 import hashlib
 import uuid
 from datetime import datetime, date
-from functools import partial
 
+import click
 import pkg_resources
 from lektor.build_programs import BuildProgram
 from lektor.db import F
@@ -130,20 +130,24 @@ class AtomFeedBuilderProgram(BuildProgram):
         items = items.order_by(order_by).limit(int(feed_source.limit))
 
         for item in items:
-            item_author_field = feed_source.item_author_field
-            item_author = get(item, item_author_field) or blog_author
+            try:
+                item_author_field = feed_source.item_author_field
+                item_author = get(item, item_author_field) or blog_author
 
-            feed.add(
-                get_item_title(item, feed_source.item_title_field),
-                get_item_body(item, feed_source.item_body_field),
-                xml_base=url_to(item, external=True),
-                url=url_to(item, external=True),
-                content_type='html',
-                id=get_id(u'%s/%s' % (
-                    ctx.env.project.id,
-                    item['_path'].encode('utf-8'))),
-                author=item_author,
-                updated=get_item_updated(item, feed_source.item_date_field))
+                feed.add(
+                    get_item_title(item, feed_source.item_title_field),
+                    get_item_body(item, feed_source.item_body_field),
+                    xml_base=url_to(item, external=True),
+                    url=url_to(item, external=True),
+                    content_type='html',
+                    id=get_id(u'%s/%s' % (
+                        ctx.env.project.id,
+                        item['_path'].encode('utf-8'))),
+                    author=item_author,
+                    updated=get_item_updated(item, feed_source.item_date_field))
+            except Exception as exc:
+                msg = '%s: %s' % (item.id, exc)
+                click.echo(click.style('E', fg='red') + ' ' + msg)
 
         with artifact.open('wb') as f:
             f.write(feed.to_string().encode('utf-8'))
