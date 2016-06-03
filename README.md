@@ -84,3 +84,19 @@ See [tests/demo-project/configs/atom.ini](https://github.com/ajdavis/lektor-atom
 By default, lektor-atom gets the source at `source_path` and includes all its children in the feed. If you set `item_model`, lektor-atom includes only the children with that data model.
 
 Set `items` to any query expression to override the default. If `items_model` is *also* specified, lektor-atom applies it as a filter to `items`.
+
+## Use In Templates
+
+You can link to a specific feed in your template. If your `atom.ini` contains a feed like this:
+
+```
+[main]
+source_path = /blog
+```
+
+Link to the feed in a template like this:
+
+```
+{{ 'blog@atom/main'|url }}
+```
+
