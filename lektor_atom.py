@@ -71,11 +71,16 @@ def get_item_title(item, field):
     return item.record_label
 
 
-def get_item_body(item, field):
+def get_item_body(item, field, body_template):
     if field not in item:
         raise RuntimeError('Body field %r not found in %r' % (field, item))
-    with get_ctx().changed_base_url(item.url_path):
-        return text_type(escape(item[field]))
+
+    if body_template:
+        rv = get_ctx().env.render_template(body_template, get_ctx().pad, this=item, values={'body': item[field]})
+        return text_type(escape(rv))
+    else:
+        with get_ctx().changed_base_url(item.url_path):
+            return text_type(escape(item[field]))
 
 
 def get_item_updated(item, field):
@@ -140,7 +145,7 @@ class AtomFeedBuilderProgram(BuildProgram):
 
                 feed.add(
                     get_item_title(item, feed_source.item_title_field),
-                    get_item_body(item, feed_source.item_body_field),
+                    get_item_body(item, feed_source.item_body_field, feed_source.body_template),
                     xml_base=url_to(item, external=True),
                     url=url_to(item, external=True),
                     content_type='html',
@@ -174,6 +179,7 @@ class AtomPlugin(Plugin):
         'item_author_field': 'author',
         'item_date_field': 'pub_date',
         'item_model': None,
+        'body_template': None,
     }
 
     def get_atom_config(self, feed_id, key):
