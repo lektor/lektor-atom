@@ -78,7 +78,7 @@ def get_item_body(item, field, body_template):
 
     if body_template:
         rv = get_ctx().env.render_template(body_template, get_ctx().pad, this=item, values={'body': item[field]})
-        return text_type(escape(rv))
+        return text_type(rv)
     else:
         with get_ctx().changed_base_url(item.url_path):
             return text_type(escape(item[field]))
