@@ -1,5 +1,6 @@
 # -*- coding: utf-8 -*-
 import sys
+import os
 import hashlib
 import uuid
 from datetime import datetime, date
@@ -96,7 +97,7 @@ def get_item_updated(item, field):
 class AtomFeedBuilderProgram(BuildProgram):
     def produce_artifacts(self):
         self.declare_artifact(
-            self.source.url_path,
+            os.path.join(self.source.parent.url_path, self.source.filename),
             sources=list(self.source.iter_source_filenames()))
 
     def build_artifact(self, artifact):
@@ -164,6 +165,7 @@ class AtomFeedBuilderProgram(BuildProgram):
 
 class AtomPlugin(Plugin):
     name = u'Lektor Atom plugin'
+    url_map = {}
 
     defaults = {
         'source_path': '/',
@@ -189,6 +191,11 @@ class AtomPlugin(Plugin):
     def on_setup_env(self, **extra):
         self.env.add_build_program(AtomFeedSource, AtomFeedBuilderProgram)
 
+        @self.env.urlresolver
+        def url_resolver(node, url_path):
+            u = build_url([node.url_path] + url_path)
+            return AtomPlugin.url_map.get(u)
+
         @self.env.virtualpathresolver('atom')
         def feed_path_resolver(node, pieces):
             if len(pieces) != 1:
@@ -208,4 +215,6 @@ class AtomPlugin(Plugin):
         def generate_feeds(source):
             for _id in self.get_config().sections():
                 if source.path == self.get_atom_config(_id, 'source_path'):
-                    yield AtomFeedSource(source, _id, self)
+                    page = AtomFeedSource(source, _id, self)
+                    AtomPlugin.url_map[page.url_path] = page
+                    yield page
