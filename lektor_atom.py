@@ -1,6 +1,5 @@
 # -*- coding: utf-8 -*-
 import sys
-import os
 import hashlib
 import uuid
 from datetime import datetime, date
@@ -97,7 +96,7 @@ def get_item_updated(item, field):
 class AtomFeedBuilderProgram(BuildProgram):
     def produce_artifacts(self):
         self.declare_artifact(
-            os.path.join(self.source.parent.url_path, self.source.filename),
+            build_url([self.source.parent.url_path, self.source.filename]),
             sources=list(self.source.iter_source_filenames()))
 
     def build_artifact(self, artifact):
