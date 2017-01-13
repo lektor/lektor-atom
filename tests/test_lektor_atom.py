@@ -78,17 +78,23 @@ def test_custom_feed(pad, builder):
 
 
 def test_virtual_resolver(pad, builder):
-    feed = pad.get('typical-blog@atom/feed-one')
-    assert feed and feed.feed_name == 'Feed One'
-    url_path = pad.get('typical-blog/post1').url_to(feed)
+    # Pass a virtual source path to url_to().
+    feed_path = '/typical-blog@atom/feed-one'
+    url_path = pad.get('typical-blog/post1').url_to(feed_path)
     assert url_path == '../../typical-blog/feed.xml'
 
-    feed = pad.get('typical-blog2@atom/feed-two')
-    assert feed and feed.feed_name == 'feed-two'
+    # Pass the AtomFeedSource instance itself to url_to().
+    feed_instance = pad.get(feed_path)
+    assert feed_instance and feed_instance.feed_name == 'Feed One'
+    url_path = pad.get('typical-blog/post1').url_to(feed_instance)
+    assert url_path == '../../typical-blog/feed.xml'
 
-    feed = pad.get('custom-blog@atom/feed-three')
-    assert feed and feed.feed_name == 'Feed Three'
-    url_path = pad.get('custom-blog/post1').url_to(feed)
+    feed_instance = pad.get('typical-blog2@atom/feed-two')
+    assert feed_instance and feed_instance.feed_name == 'feed-two'
+
+    feed_instance = pad.get('custom-blog@atom/feed-three')
+    assert feed_instance and feed_instance.feed_name == 'Feed Three'
+    url_path = pad.get('custom-blog/post1').url_to(feed_instance)
     assert url_path == '../../custom-blog/atom.xml'
 
 
