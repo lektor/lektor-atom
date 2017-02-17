@@ -3,7 +3,7 @@ import sys
 import hashlib
 import uuid
 from datetime import datetime, date
-
+from functools import wraps
 import click
 import pkg_resources
 from lektor.build_programs import BuildProgram
@@ -64,18 +64,35 @@ def get_id(s):
     b = hashlib.md5(s.encode('utf-8')).digest()
     return uuid.UUID(bytes=b, version=3).urn
 
+def fix_empty_item_title(func):
+    @wraps(func)
+    def wrapper(*args, **kwds):
+        s = func(*args, **kwds)
+        if s is None:
+            return ' '
+        if s.strip() == '':
+            return '  '
+        return s
+    return wrapper
 
+
+@fix_empty_item_title
 def get_item_title(item, field):
     if field in item:
         return item[field]
     return item.record_label
 
 
-def get_item_body(item, field):
+def get_item_body(item, field, body_template):
     if field not in item:
         raise RuntimeError('Body field %r not found in %r' % (field, item))
-    with get_ctx().changed_base_url(item.url_path):
-        return text_type(escape(item[field]))
+
+    if body_template:
+        rv = get_ctx().env.render_template(body_template, get_ctx().pad, this=item, values={'body': item[field]})
+        return text_type(rv)
+    else:
+        with get_ctx().changed_base_url(item.url_path):
+            return text_type(escape(item[field]))
 
 
 def get_item_updated(item, field):
@@ -91,7 +108,7 @@ def get_item_updated(item, field):
 class AtomFeedBuilderProgram(BuildProgram):
     def produce_artifacts(self):
         self.declare_artifact(
-            self.source.url_path,
+            build_url([self.source.parent.url_path, self.source.filename]),
             sources=list(self.source.iter_source_filenames()))
 
     def build_artifact(self, artifact):
@@ -140,7 +157,7 @@ class AtomFeedBuilderProgram(BuildProgram):
 
                 feed.add(
                     get_item_title(item, feed_source.item_title_field),
-                    get_item_body(item, feed_source.item_body_field),
+                    get_item_body(item, feed_source.item_body_field, feed_source.body_template),
                     xml_base=url_to(item, external=True),
                     url=url_to(item, external=True),
                     content_type='html',
@@ -150,7 +167,7 @@ class AtomFeedBuilderProgram(BuildProgram):
                     author=item_author,
                     updated=get_item_updated(item, feed_source.item_date_field))
             except Exception as exc:
-                msg = '%s: %s' % (item.id, exc)
+                msg = '%s: %s' % (item.path, exc)
                 click.echo(click.style('E', fg='red') + ' ' + msg)
 
         with artifact.open('wb') as f:
@@ -159,6 +176,7 @@ class AtomFeedBuilderProgram(BuildProgram):
 
 class AtomPlugin(Plugin):
     name = u'Lektor Atom plugin'
+    url_map = {}
 
     defaults = {
         'source_path': '/',
@@ -174,6 +192,7 @@ class AtomPlugin(Plugin):
         'item_author_field': 'author',
         'item_date_field': 'pub_date',
         'item_model': None,
+        'body_template': None,
     }
 
     def get_atom_config(self, feed_id, key):
@@ -182,6 +201,11 @@ class AtomPlugin(Plugin):
 
     def on_setup_env(self, **extra):
         self.env.add_build_program(AtomFeedSource, AtomFeedBuilderProgram)
+
+        @self.env.urlresolver
+        def url_resolver(node, url_path):
+            u = build_url([node.url_path] + url_path)
+            return AtomPlugin.url_map.get(u)
 
         @self.env.virtualpathresolver('atom')
         def feed_path_resolver(node, pieces):
@@ -202,4 +226,6 @@ class AtomPlugin(Plugin):
         def generate_feeds(source):
             for _id in self.get_config().sections():
                 if source.path == self.get_atom_config(_id, 'source_path'):
-                    yield AtomFeedSource(source, _id, self)
+                    page = AtomFeedSource(source, _id, self)
+                    AtomPlugin.url_map[page.url_path] = page
+                    yield page
