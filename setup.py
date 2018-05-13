@@ -7,7 +7,7 @@ setup(
     author_email='jesse@emptysquare.net',
     license='MIT',
     py_modules=['lektor_atom'],
-    install_requires=['MarkupSafe', 'Lektor'],
+    install_requires=['MarkupSafe'],
     tests_require=['lxml', 'pytest'],
     url='https://github.com/ajdavis/lektor-atom',
     entry_points={
