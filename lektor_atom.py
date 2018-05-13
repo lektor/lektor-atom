@@ -159,6 +159,7 @@ class AtomFeedBuilderProgram(BuildProgram):
 
 class AtomPlugin(Plugin):
     name = u'Lektor Atom plugin'
+    description = u'Lektor plugin that generates Atom feeds.'
 
     defaults = {
         'source_path': '/',
