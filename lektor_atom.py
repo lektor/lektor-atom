@@ -150,7 +150,7 @@ class AtomFeedBuilderProgram(BuildProgram):
                     author=item_author,
                     updated=get_item_updated(item, feed_source.item_date_field))
             except Exception as exc:
-                msg = '%s: %s' % (item.id, exc)
+                msg = '%s: %s' % (item['_id'], exc)
                 click.echo(click.style('E', fg='red') + ' ' + msg)
 
         with artifact.open('wb') as f:
