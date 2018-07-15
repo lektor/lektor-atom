@@ -1,5 +1,6 @@
 import os
 
+from lektor.context import Context
 from lxml import objectify
 
 
@@ -113,3 +114,41 @@ def test_dependencies(pad, builder, reporter):
         'configs/atom.ini',
     ])
 
+
+def feeds_from_template(pad, template):
+    with Context(pad=pad):
+        return set(
+            pad.env.jinja_env.from_string(template)
+                             .render()
+                             .split()
+        )
+
+
+def test_discover_all(pad):
+    template = r'''
+    {% for feed in atom_feeds() %}
+        {{ feed.feed_id }}
+    {% endfor %}
+    '''
+    all_feeds = set(['feed-one', 'feed-two',
+                     'feed-three', 'feed-four'])
+    feeds_discovered = feeds_from_template(pad, template)
+    assert feeds_discovered == all_feeds
+
+
+def test_discover_local(pad):
+    template_blog = r'''
+    {% for feed in atom_feeds(for_page=site.get('/custom-blog')) %}
+        {{ feed.feed_id }}
+    {% endfor %}
+    '''
+    feeds_blog = feeds_from_template(pad, template_blog)
+    assert feeds_blog == set(['feed-three', 'feed-four'])
+
+    template_noblog = r'''
+    {% for feed in atom_feeds(for_page=site.get('/no-feed-content')) %}
+        {{ feed.feed_id }}
+    {% endfor %}
+    '''
+    feeds_noblog = feeds_from_template(pad, template_noblog)
+    assert len(feeds_noblog) == 0

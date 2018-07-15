@@ -184,6 +184,9 @@ class AtomPlugin(Plugin):
     def on_setup_env(self, **extra):
         self.env.add_build_program(AtomFeedSource, AtomFeedBuilderProgram)
 
+        self.env.jinja_env.filters['atom_feeds'] = self.atom_feeds
+        self.env.jinja_env.globals['atom_feeds'] = self.atom_feeds
+
         @self.env.virtualpathresolver('atom')
         def feed_path_resolver(node, pieces):
             if len(pieces) != 1:
@@ -204,3 +207,33 @@ class AtomPlugin(Plugin):
             for _id in self.get_config().sections():
                 if source.path == self.get_atom_config(_id, 'source_path'):
                     yield AtomFeedSource(source, _id, self)
+
+    def _all_feeds(self):
+        ctx = get_ctx()
+
+        feeds = []
+        for feed_id in self.get_config().sections():
+            path = self.get_atom_config(feed_id, 'source_path')
+            feed = ctx.pad.get('%s@atom/%s' % (path, feed_id))
+            if feed:
+                feeds.append(feed)
+
+        return feeds
+
+    def _feeds_for(self, page):
+        ctx = get_ctx()
+        record = page.record
+
+        feeds = []
+        for section in self.get_config().sections():
+            feed = ctx.pad.get('%s@atom/%s' % (record.path, section))
+            if feed:
+                feeds.append(feed)
+
+        return feeds
+
+    def atom_feeds(self, for_page=None):
+        if not for_page:
+            return self._all_feeds()
+        else:
+            return self._feeds_for(for_page)

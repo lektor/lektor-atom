@@ -100,6 +100,18 @@ Link to the feed in a template like this:
 {{ 'blog@atom/main'|url }}
 ```
 
+The plugin also defines a function to enumerate all feeds or a subset of feeds
+relevant to the current page.
+
+```
+{% for feed in atom_feeds(for_page=this) %}
+    {{ feed | url }}
+{% endfor %}
+```
+
+When the argument `for_page` is omitted, the function will enumerate all feeds
+defined in your project.
+
 # Changes
 
 2016-06-02: Version 0.2. Python 3 compatibility (thanks to Dan Bauman),
