@@ -138,10 +138,15 @@ class AtomFeedBuilderProgram(BuildProgram):
                 item_author_field = feed_source.item_author_field
                 item_author = get(item, item_author_field) or blog_author
 
+                base_url = url_to(
+                    item.parent if item.is_attachment else item,
+                    external=True
+                )
+
                 feed.add(
                     get_item_title(item, feed_source.item_title_field),
                     get_item_body(item, feed_source.item_body_field),
-                    xml_base=url_to(item, external=True),
+                    xml_base=base_url,
                     url=url_to(item, external=True),
                     content_type='html',
                     id=get_id(u'%s/%s' % (
