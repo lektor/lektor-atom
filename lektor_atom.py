@@ -156,7 +156,14 @@ class AtomFeedBuilderProgram(BuildProgram):
                     item,
                     ctx.env
                 ) or blog_author
-
+                # FIXME Work-around Lektor #583. When the item is an attachment,
+                # we will get an invalid path here unless we force the
+                # `_primary` alt.
+                url = (
+                    item.url_to(item.path, external=True, alt='_primary')
+                    if item.is_attachment
+                    else url_to(item, external=True)
+                )
                 base_url = url_to(
                     item.parent if item.is_attachment else item,
                     external=True
@@ -175,7 +182,7 @@ class AtomFeedBuilderProgram(BuildProgram):
                     title,
                     body,
                     xml_base=base_url,
-                    url=url_to(item, external=True),
+                    url=url,
                     content_type='html',
                     id=get_id(u'%s/%s' % (
                         ctx.env.project.id,

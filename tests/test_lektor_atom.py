@@ -171,7 +171,7 @@ def test_discover_all(pad):
     '''
     all_feeds = set(['feed-one', 'feed-two',
                      'feed-three', 'feed-four',
-                     'feed-five'])
+                     'feed-five', 'feed-six'])
     feeds_discovered = feeds_from_template(pad, template)
     assert feeds_discovered == all_feeds
 
@@ -201,3 +201,31 @@ def test_localized_config(pad):
     assert plugin.get_atom_config('feed-five', 'name', alt='de') \
         == u'Feed Fünf'
 
+
+def test_attachments_feed(pad, builder):
+    failures = builder.build_all()
+    assert not failures
+
+    def test_feed(path, prefix=''):
+        feed_path = os.path.join(builder.destination_path, prefix, path)
+        feed = objectify.parse(open(feed_path)).getroot()
+
+        assert 'Attachments feed' == feed.title
+        assert 'Lots of downloads' == str(feed.subtitle).strip()
+        assert 'html' == feed.subtitle.attrib['type']
+        assert 'Kim Dotcom' == feed.author.name
+        assert 'http://x.com/%sattachments-feed/' % prefix \
+            == feed.link[0].attrib['href']
+        assert 'http://x.com/%sattachments-feed/feed.xml' % prefix \
+            == feed.link[1].attrib['href']
+
+        assert len(feed.entry) == 1
+        attachment1 = feed.entry[0]
+        assert attachment1.title == "ASCII ramblings"
+        base = attachment1.attrib['{http://www.w3.org/XML/1998/namespace}base']
+        assert base == 'http://x.com/attachments-feed/'
+        assert attachment1.link.attrib['href'] \
+            == 'http://x.com/attachments-feed/1.txt'
+
+    test_feed('attachments-feed/feed.xml')
+    test_feed('attachments-feed/feed.xml', prefix='de/')
