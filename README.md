@@ -97,7 +97,7 @@ source_path = /blog
 Link to the feed in a template like this:
 
 ```
-{{ 'blog@atom/main'|url }}
+{{ '/blog@atom/main'|url }}
 ```
 
 # Changes
