@@ -13,6 +13,12 @@ with open('lektor_atom.py', 'rb') as f:
     description = str(ast.literal_eval(_description_re.search(
         f.read().decode('utf-8')).group(1)))
 
+tests_require = [
+    'lxml',
+    'pytest'
+],
+
+
 setup(
     author=u'A. Jesse Jiryu Davis',
     author_email='jesse@emptysquare.net',
@@ -38,8 +44,8 @@ setup(
             'atom = lektor_atom:AtomPlugin',
         ]
     },
-    tests_require=[
-        'lxml',
-        'pytest'
-    ],
+    extras_require={
+        'test': tests_require,
+    },
+    tests_require=tests_require,
 )
