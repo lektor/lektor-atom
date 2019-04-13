@@ -4,3 +4,13 @@ url = http://x.com
 
 [packages]
 lektor-atom
+
+[alternatives.en]
+name = Elvish
+primary = yes
+locale = en_US
+
+[alternatives.de]
+name = Dwarvish
+locale = de_DE
+url_prefix = /de/

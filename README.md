@@ -38,21 +38,21 @@ The section names, like `blog` and `coffee`, are just used as internal identifie
 
 ### Options
 
-|Option               | Default    | Description
-|---------------------|------------|-------------------------------------------------------------------------
-|source\_path         | /          | Where in the content directory to find items' parent source
-|name                 |            | Feed name: default is section name
-|filename             | feed.xml   | Name of generated Atom feed file
-|url\_path            |            | Feed's URL on your site: default is source's URL path plus the filename
-|blog\_author\_field  | author     | Name of source's author field
-|blog\_summary\_field | summary    | Name of source's summary field
-|items                | None       | A query expression: default is the source's children
-|limit                | 50         | How many recent items to include
-|item\_title\_field   | title      | Name of items' title field
-|item\_body\_field    | body       | Name of items' content body field
-|item\_author\_field  | author     | Name of items' author field
-|item\_date\_field    | pub\_date  | Name of items' publication date field
-|item\_model          | None       | Name of items' model
+| Option            | Default            | Description                                                             |
+|-------------------|--------------------|-------------------------------------------------------------------------|
+| source\_path      | /                  | Where in the content directory to find items' parent source             |
+| name              |                    | Feed name: default is section name                                      |
+| filename          | feed.xml           | Name of generated Atom feed file                                        |
+| url\_path         |                    | Feed's URL on your site: default is source's URL path plus the filename |
+| blog\_author      | {{ this.author }}  | Global blog author or blog editor                                       |
+| blog\_summary     | {{ this.summary }} | Blog summary                                                            |
+| items             | None               | A query expression: default is the source's children                    |
+| limit             | 50                 | How many recent items to include                                        |
+| item\_title       | {{ this.title }}   | Blog post title                                                         |
+| item\_body        | {{ this.body }}    | Blog post body                                                          |
+| item\_author      | {{ this.author }}  | Blog post author                                                        |
+| item\_date\_field | pub\_date          | Name of items' publication date field                                   |
+| item\_model       | None               | Name of items' model                                                    |
 
 ### Customizing the plugin for your models
 
@@ -73,8 +73,8 @@ Then add to atom.ini:
 
 ```
 [main]
-blog_author_field = writer
-blog_summary_field = short_description
+blog_author = {{ this.writer }}
+blog_summary = {{ this.short_description }}
 ```
 
 See [tests/demo-project/configs/atom.ini](https://github.com/ajdavis/lektor-atom/blob/master/tests/demo-project/configs/atom.ini) for a complete example.
@@ -98,6 +98,50 @@ Link to the feed in a template like this:
 
 ```
 {{ '/blog@atom/main'|url }}
+```
+
+The plugin also defines a function to enumerate all feeds or a subset of feeds
+relevant to the current page.
+
+```
+{% for feed in atom_feeds(for_page=this) %}
+    {{ feed | url }}
+{% endfor %}
+```
+
+When the argument `for_page` is omitted, the function will enumerate all feeds
+defined in your project.
+
+## Alternatives
+
+If your site is using Lektor’s alternative system, you can set
+alternative-specific configuration values in your `configs/atom.ini`:
+
+```
+[blog]
+name = My Blog
+source_path = /
+item_model = blog-post
+
+[blog.de]
+name = Mein Blog
+```
+
+When lektor-atom is trying to retrieve a configuration value, it will first
+look-up the config file section `[feed.ALT]`, where `ALT` is replaced by the
+name of the alternative that is being generated. When such a value does not
+exist, lektor-atom will get the value from the global section (`[feed]`), or, if
+this does not succeed, lektor-atom will fall back on the hardcoded default.
+
+If you are using pybabel and have the Jinja i18n extension enabled, you can
+alternatively localize your feeds by using `{% trans %}` blocks inside template
+expressions in your `atom.ini`. To extract translation strings using babel, just
+add the following to your `babel.cfg`:
+
+```
+[jinja2: site/configs/atom.ini]
+encoding=utf-8
+silent=False
 ```
 
 # Changes
