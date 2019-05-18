@@ -16,6 +16,15 @@ See [the Lektor documentation for more instructions on installing plugins](https
 
 ## Configuration
 
+Here is a basic configuration:
+
+```
+[feed]
+name = My Site's Blog
+source_path = /blog
+url_path = /feed.xml
+```
+
 For each feed you want to publish, add a section to `configs/atom.ini`. For example, a blog with a feed of all recent posts, and a feed of recent posts about coffee:
 
 ```
@@ -40,19 +49,19 @@ The section names, like `blog` and `coffee`, are just used as internal identifie
 
 |Option               | Default    | Description
 |---------------------|------------|-------------------------------------------------------------------------
-|source\_path         | /          | Where in the content directory to find items' parent source
-|name                 |            | Feed name: default is section name
-|filename             | feed.xml   | Name of generated Atom feed file
-|url\_path            |            | Feed's URL on your site: default is source's URL path plus the filename
-|blog\_author\_field  | author     | Name of source's author field
-|blog\_summary\_field | summary    | Name of source's summary field
-|items                | None       | A query expression: default is the source's children
-|limit                | 50         | How many recent items to include
-|item\_title\_field   | title      | Name of items' title field
-|item\_body\_field    | body       | Name of items' content body field
-|item\_author\_field  | author     | Name of items' author field
-|item\_date\_field    | pub\_date  | Name of items' publication date field
-|item\_model          | None       | Name of items' model
+|source\_path         | /                      | Where in the content directory to find items' parent source
+|name                 | config section name    | Feed name
+|filename             | feed.xml               | Name of generated Atom feed file
+|url\_path            | source_path + filename | Feed's URL on your site
+|blog\_author\_field  | author                 | Name of source's author field
+|blog\_summary\_field | summary                | Name of source's summary field
+|items                | source_path's children | A query expression: e.g. `site.query('/').filter(F.type == 'post')`
+|limit                | 50                     | How many recent items to include
+|item\_title\_field   | title                  | Name of items' title field
+|item\_body\_field    | body                   | Name of items' content body field
+|item\_author\_field  | author                 | Name of items' author field
+|item\_date\_field    | pub\_date              | Name of items' publication date field
+|item\_model          | None                   | Filters `items` on name of items' model
 
 ### Customizing the plugin for your models
 
