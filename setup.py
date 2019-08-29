@@ -23,7 +23,7 @@ setup(
     author=u'A. Jesse Jiryu Davis',
     author_email='jesse@emptysquare.net',
     description=description,
-    install_requires=['MarkupSafe'],
+    install_requires=['MarkupSafe', 'feedgenerator'],
     keywords='Lektor plugin static-site blog atom rss',
     license='MIT',
     long_description=readme,
@@ -31,7 +31,7 @@ setup(
     name='lektor-atom',
     py_modules=['lektor_atom'],
     url='https://github.com/nixjdm/lektor-atom',
-    version='0.3.1',
+    version='0.4.0',
     classifiers=[
         'Environment :: Plugins',
         'Environment :: Web Environment',
