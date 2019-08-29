@@ -4,6 +4,8 @@ Builds one or more Atom XML feeds for your [Lektor](https://www.getlektor.com/)-
 
 Inspired by the [atom-feed-support](https://github.com/lektor/lektor-website/tree/master/packages/atom-feed-support) plugin Armin Ronacher wrote for the Lektor official blog.
 
+It uses Pelican's [feedgenerator](https://github.com/getpelican/feedgenerator) instead of Werkzeug's [Atom](https://werkzeug.palletsprojects.com/en/0.15.x/contrib/atom/), which is deprecated.
+
 ## Installation
 
 Add lektor-atom to your project from command line:
@@ -110,6 +112,10 @@ Link to the feed in a template like this:
 ```
 
 # Changes
+
+2019-08-29: Version 0.4, Replace Werkzeug's [Atom](https://werkzeug.palletsprojects.com/en/0.15.x/contrib/atom/) with Pelican's [feedgenerator](https://github.com/getpelican/feedgenerator)
+
+2019-05-18: Version 0.3.1, Ensure universal builds and bugfix in build program
 
 2016-06-02: Version 0.2. Python 3 compatibility (thanks to Dan Bauman),
 colored error output during build, fix for Markdown-formatted item subtitles.
