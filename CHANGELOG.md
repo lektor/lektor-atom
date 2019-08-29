@@ -1,5 +1,10 @@
 # Changelog
 
+## 0.4 (August 29, 2019)
+
+Replace Werkzeug's [Atom](https://werkzeug.palletsprojects.com/en/0.15.x/contrib/atom/)
+with Pelican's Django-based [feedgenerator](https://github.com/getpelican/feedgenerator)
+
 ## 0.3.1 (May 11, 2020)
 
 - Pin werkzeug to be able to use the atom feed.
