@@ -6,7 +6,6 @@ from datetime import date
 from datetime import datetime
 
 import click
-import pkg_resources
 from lektor.build_programs import BuildProgram
 from lektor.context import get_ctx
 from lektor.context import url_to
@@ -15,8 +14,10 @@ from lektor.environment import Expression
 from lektor.pluginsystem import Plugin
 from lektor.sourceobj import VirtualSourceObject
 from lektor.utils import build_url
+
 from markupsafe import escape
-from werkzeug.contrib.atom import AtomFeed
+from feedgenerator.django.utils.feedgenerator import Atom1Feed
+
 
 PY2 = sys.version_info[0] == 2
 
@@ -107,21 +108,15 @@ class AtomFeedBuilderProgram(BuildProgram):
         else:
             subtitle_type = "text"
         blog_author = text_type(get(blog, feed_source.blog_author_field) or "")
-        generator = (
-            "Lektor Atom Plugin",
-            "https://github.com/ajdavis/lektor-atom",
-            pkg_resources.get_distribution("lektor-atom").version,
-        )
 
-        feed = AtomFeed(
+        feed = Atom1Feed(
             title=feed_source.feed_name,
             subtitle=summary,
-            subtitle_type=subtitle_type,
-            author=blog_author,
+            author_name=blog_author,
             feed_url=url_to(feed_source, external=True),
-            url=url_to(blog, external=True),
-            id=get_id(ctx.env.project.id),
-            generator=generator,
+            link=url_to(blog, external=True),
+            feed_guid=get_id(ctx.env.project.id),
+            description=None,
         )
 
         if feed_source.items:
@@ -142,24 +137,24 @@ class AtomFeedBuilderProgram(BuildProgram):
                 item_author_field = feed_source.item_author_field
                 item_author = get(item, item_author_field) or blog_author
 
-                feed.add(
-                    get_item_title(item, feed_source.item_title_field),
-                    get_item_body(item, feed_source.item_body_field),
-                    xml_base=url_to(item, external=True),
-                    url=url_to(item, external=True),
-                    content_type="html",
-                    id=get_id(
+                feed.add_item(
+                    title=get_item_title(item, feed_source.item_title_field),
+                    description=None,
+                    content=get_item_body(item, feed_source.item_body_field),
+                    link=url_to(item, external=True),
+                    unique_id=get_id(
                         u"%s/%s" % (ctx.env.project.id, item["_path"].encode("utf-8"))
                     ),
-                    author=item_author,
-                    updated=get_item_updated(item, feed_source.item_date_field),
+                    author_name=item_author,
+                    updateddate=get_item_updated(item, feed_source.item_date_field),
                 )
+
             except Exception as exc:
                 msg = "%s: %s" % (item["_id"], exc)
                 click.echo(click.style("E", fg="red") + " " + msg)
 
         with artifact.open("wb") as f:
-            f.write(feed.to_string().encode("utf-8"))
+            feed.write(f, "utf-8")
 
 
 class AtomPlugin(Plugin):
