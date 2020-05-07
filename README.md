@@ -1,5 +1,9 @@
 # Lektor Atom Plugin
 
+![Linux tests](https://github.com/lektor/lektor-atom/workflows/Linux%20tests/badge.svg)
+[![Code Style: Black](https://img.shields.io/badge/code%20style-black-000000.svg)](https://github.com/psf/black)
+[![Join the chat at https://gitter.im/lektor/lektor](https://badges.gitter.im/lektor/lektor.svg)](https://gitter.im/lektor/lektor?utm_source=badge&utm_medium=badge&utm_campaign=pr-badge&utm_content=badge)
+
 Builds one or more Atom XML feeds for your [Lektor](https://www.getlektor.com/)-based site.
 
 Inspired by the [atom-feed-support](https://github.com/lektor/lektor-website/tree/master/packages/atom-feed-support) plugin Armin Ronacher wrote for the Lektor official blog.
@@ -8,7 +12,7 @@ Inspired by the [atom-feed-support](https://github.com/lektor/lektor-website/tre
 
 Add lektor-atom to your project from command line:
 
-```
+```sh
 lektor plugins add lektor-atom
 ```
 
@@ -18,7 +22,7 @@ See [the Lektor documentation for more instructions on installing plugins](https
 
 Here is a basic configuration:
 
-```
+```ini
 [feed]
 name = My Site's Blog
 source_path = /blog
@@ -27,7 +31,7 @@ url_path = /feed.xml
 
 For each feed you want to publish, add a section to `configs/atom.ini`. For example, a blog with a feed of all recent posts, and a feed of recent posts about coffee:
 
-```
+```ini
 [blog]
 name = My Blog
 source_path = /
@@ -67,7 +71,7 @@ The section names, like `blog` and `coffee`, are just used as internal identifie
 
 Use the field options to tell lektor-atom how to read your items. For example, if your site's model is:
 
-```
+```ini
 [model]
 name = Blog
 
@@ -80,7 +84,7 @@ type = string
 
 Then add to atom.ini:
 
-```
+```ini
 [main]
 blog_author_field = writer
 blog_summary_field = short_description
@@ -98,7 +102,7 @@ Set `items` to any query expression to override the default. If `items_model` is
 
 You can link to a specific feed in your template. If your `atom.ini` contains a feed like this:
 
-```
+```ini
 [main]
 source_path = /blog
 ```

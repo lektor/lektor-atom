@@ -23,7 +23,10 @@ setup(
     author=u'A. Jesse Jiryu Davis',
     author_email='jesse@emptysquare.net',
     description=description,
-    install_requires=['MarkupSafe'],
+    install_requires=[
+        'MarkupSafe',
+        'Werkzeug<1.0',  # Werkzeug 1.0 removed the feed generator
+    ],
     keywords='Lektor plugin static-site blog atom rss',
     license='MIT',
     long_description=readme,

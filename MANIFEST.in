@@ -1,0 +1,8 @@
+include *.md
+include *.yaml
+include Makefile
+recursive-include tests *.html
+recursive-include tests *.ini
+recursive-include tests *.lektorproject
+recursive-include tests *.lr
+recursive-include tests *.py
