@@ -1,21 +1,22 @@
 # -*- coding: utf-8 -*-
-import sys
 import hashlib
+import sys
 import uuid
-from datetime import datetime, date
+from datetime import date
+from datetime import datetime
 
 import click
 import pkg_resources
 from lektor.build_programs import BuildProgram
+from lektor.context import get_ctx
+from lektor.context import url_to
 from lektor.db import F
 from lektor.environment import Expression
 from lektor.pluginsystem import Plugin
-from lektor.context import get_ctx, url_to
 from lektor.sourceobj import VirtualSourceObject
 from lektor.utils import build_url
-
-from werkzeug.contrib.atom import AtomFeed
 from markupsafe import escape
+from werkzeug.contrib.atom import AtomFeed
 
 PY2 = sys.version_info[0] == 2
 
@@ -33,11 +34,11 @@ class AtomFeedSource(VirtualSourceObject):
 
     @property
     def path(self):
-        return self.parent.path + '@atom/' + self.feed_id
+        return self.parent.path + "@atom/" + self.feed_id
 
     @property
     def url_path(self):
-        p = self.plugin.get_atom_config(self.feed_id, 'url_path')
+        p = self.plugin.get_atom_config(self.feed_id, "url_path")
         if p:
             return p
 
@@ -51,7 +52,7 @@ class AtomFeedSource(VirtualSourceObject):
 
     @property
     def feed_name(self):
-        return self.plugin.get_atom_config(self.feed_id, 'name') or self.feed_id
+        return self.plugin.get_atom_config(self.feed_id, "name") or self.feed_id
 
 
 def get(item, field, default=None):
@@ -61,7 +62,7 @@ def get(item, field, default=None):
 
 
 def get_id(s):
-    b = hashlib.md5(s.encode('utf-8')).digest()
+    b = hashlib.md5(s.encode("utf-8")).digest()
     return uuid.UUID(bytes=b, version=3).urn
 
 
@@ -73,7 +74,7 @@ def get_item_title(item, field):
 
 def get_item_body(item, field):
     if field not in item:
-        raise RuntimeError('Body field %r not found in %r' % (field, item))
+        raise RuntimeError("Body field %r not found in %r" % (field, item))
     with get_ctx().changed_base_url(item.url_path):
         return text_type(escape(item[field]))
 
@@ -91,24 +92,26 @@ def get_item_updated(item, field):
 class AtomFeedBuilderProgram(BuildProgram):
     def produce_artifacts(self):
         self.declare_artifact(
-            self.source.url_path,
-            sources=list(self.source.iter_source_filenames()))
+            self.source.url_path, sources=list(self.source.iter_source_filenames())
+        )
 
     def build_artifact(self, artifact):
         ctx = get_ctx()
         feed_source = self.source
         blog = feed_source.parent
 
-        summary = get(blog, feed_source.blog_summary_field) or ''
-        if hasattr(summary, '__html__'):
-            subtitle_type = 'html'
+        summary = get(blog, feed_source.blog_summary_field) or ""
+        if hasattr(summary, "__html__"):
+            subtitle_type = "html"
             summary = text_type(summary.__html__())
         else:
-            subtitle_type = 'text'
-        blog_author = text_type(get(blog, feed_source.blog_author_field) or '')
-        generator = ('Lektor Atom Plugin',
-                     'https://github.com/ajdavis/lektor-atom',
-                     pkg_resources.get_distribution('lektor-atom').version)
+            subtitle_type = "text"
+        blog_author = text_type(get(blog, feed_source.blog_author_field) or "")
+        generator = (
+            "Lektor Atom Plugin",
+            "https://github.com/ajdavis/lektor-atom",
+            pkg_resources.get_distribution("lektor-atom").version,
+        )
 
         feed = AtomFeed(
             title=feed_source.feed_name,
@@ -118,7 +121,8 @@ class AtomFeedBuilderProgram(BuildProgram):
             feed_url=url_to(feed_source, external=True),
             url=url_to(blog, external=True),
             id=get_id(ctx.env.project.id),
-            generator=generator)
+            generator=generator,
+        )
 
         if feed_source.items:
             # "feed_source.items" is a string like "site.query('/blog')".
@@ -130,7 +134,7 @@ class AtomFeedBuilderProgram(BuildProgram):
         if feed_source.item_model:
             items = items.filter(F._model == feed_source.item_model)
 
-        order_by = '-' + feed_source.item_date_field
+        order_by = "-" + feed_source.item_date_field
         items = items.order_by(order_by).limit(int(feed_source.limit))
 
         for item in items:
@@ -143,48 +147,49 @@ class AtomFeedBuilderProgram(BuildProgram):
                     get_item_body(item, feed_source.item_body_field),
                     xml_base=url_to(item, external=True),
                     url=url_to(item, external=True),
-                    content_type='html',
-                    id=get_id(u'%s/%s' % (
-                        ctx.env.project.id,
-                        item['_path'].encode('utf-8'))),
+                    content_type="html",
+                    id=get_id(
+                        u"%s/%s" % (ctx.env.project.id, item["_path"].encode("utf-8"))
+                    ),
                     author=item_author,
-                    updated=get_item_updated(item, feed_source.item_date_field))
+                    updated=get_item_updated(item, feed_source.item_date_field),
+                )
             except Exception as exc:
-                msg = '%s: %s' % (item['_id'], exc)
-                click.echo(click.style('E', fg='red') + ' ' + msg)
+                msg = "%s: %s" % (item["_id"], exc)
+                click.echo(click.style("E", fg="red") + " " + msg)
 
-        with artifact.open('wb') as f:
-            f.write(feed.to_string().encode('utf-8'))
+        with artifact.open("wb") as f:
+            f.write(feed.to_string().encode("utf-8"))
 
 
 class AtomPlugin(Plugin):
-    name = u'Lektor Atom plugin'
-    description = u'Lektor plugin that generates Atom feeds.'
+    name = u"Lektor Atom plugin"
+    description = u"Lektor plugin that generates Atom feeds."
 
     defaults = {
-        'source_path': '/',
-        'name': None,
-        'url_path': None,
-        'filename': 'feed.xml',
-        'blog_author_field': 'author',
-        'blog_summary_field': 'summary',
-        'items': None,
-        'limit': 50,
-        'item_title_field': 'title',
-        'item_body_field': 'body',
-        'item_author_field': 'author',
-        'item_date_field': 'pub_date',
-        'item_model': None,
+        "source_path": "/",
+        "name": None,
+        "url_path": None,
+        "filename": "feed.xml",
+        "blog_author_field": "author",
+        "blog_summary_field": "summary",
+        "items": None,
+        "limit": 50,
+        "item_title_field": "title",
+        "item_body_field": "body",
+        "item_author_field": "author",
+        "item_date_field": "pub_date",
+        "item_model": None,
     }
 
     def get_atom_config(self, feed_id, key):
         default_value = self.defaults[key]
-        return self.get_config().get('%s.%s' % (feed_id, key), default_value)
+        return self.get_config().get("%s.%s" % (feed_id, key), default_value)
 
     def on_setup_env(self, **extra):
         self.env.add_build_program(AtomFeedSource, AtomFeedBuilderProgram)
 
-        @self.env.virtualpathresolver('atom')
+        @self.env.virtualpathresolver("atom")
         def feed_path_resolver(node, pieces):
             if len(pieces) != 1:
                 return
@@ -195,12 +200,12 @@ class AtomPlugin(Plugin):
             if _id not in config.sections():
                 return
 
-            source_path = self.get_atom_config(_id, 'source_path')
+            source_path = self.get_atom_config(_id, "source_path")
             if node.path == source_path:
                 return AtomFeedSource(node, _id, plugin=self)
 
         @self.env.generator
         def generate_feeds(source):
             for _id in self.get_config().sections():
-                if source.path == self.get_atom_config(_id, 'source_path'):
+                if source.path == self.get_atom_config(_id, "source_path"):
                     yield AtomFeedSource(source, _id, self)

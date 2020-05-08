@@ -79,6 +79,6 @@ jobs:
       - name: Check manifest
         run: |
           check-manifest -v
-      # - name: Run pre commit checks
-      #   run: |
-      #     pre-commit run -a
+      - name: Run pre commit checks
+        run: |
+          pre-commit run -a
