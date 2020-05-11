@@ -1,6 +1,10 @@
 # Changelog
 
-## 0.3.1 (May 18, 2019)
+## 0.3.1 (May 11, 2020)
+
+- Pin werkzeug to be able to use the atom feed.
+
+## 0.3 (May 18, 2019)
 
 - Ensure universal builds
 - Bugfix in build program
