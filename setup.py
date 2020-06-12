@@ -31,7 +31,7 @@ setup(
     long_description_content_type="text/markdown",
     name="lektor-atom",
     py_modules=["lektor_atom"],
-    url="https://github.com/nixjdm/lektor-atom",
+    url="https://github.com/lektor/lektor-atom",
     version="0.3.1",
     classifiers=[
         "Environment :: Plugins",
