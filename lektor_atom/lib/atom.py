@@ -21,20 +21,13 @@
     :copyright: 2007 Pallets
     :license: BSD-3-Clause
 """
-import warnings
 from datetime import datetime
 
-from .._compat import implements_to_string
-from .._compat import string_types
-from ..utils import escape
-from ..wrappers import BaseResponse
+from werkzeug._compat import implements_to_string
+from werkzeug._compat import string_types
+from werkzeug.utils import escape
+from werkzeug.wrappers import BaseResponse
 
-warnings.warn(
-    "'werkzeug.contrib.atom' is deprecated as of version 0.15 and will"
-    " be removed in version 1.0.",
-    DeprecationWarning,
-    stacklevel=2,
-)
 
 XHTML_NAMESPACE = "http://www.w3.org/1999/xhtml"
 

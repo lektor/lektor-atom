@@ -16,7 +16,8 @@ from lektor.pluginsystem import Plugin
 from lektor.sourceobj import VirtualSourceObject
 from lektor.utils import build_url
 from markupsafe import escape
-from werkzeug.contrib.atom import AtomFeed
+
+from .lib.atom import AtomFeed
 
 PY2 = sys.version_info[0] == 2
 
