@@ -1,5 +1,10 @@
 # Changelog
 
+## 0.3.2 (June 13, 2020)
+
+- Bundle atom.py from old werkzeug's contrib.
+- Unpin werkzeug.
+
 ## 0.3.1 (May 11, 2020)
 
 - Pin werkzeug to be able to use the atom feed.

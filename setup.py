@@ -32,7 +32,7 @@ setup(
     name="lektor-atom",
     packages=["lektor_atom"],
     url="https://github.com/lektor/lektor-atom",
-    version="0.3.1",
+    version="0.3.2",
     classifiers=[
         "Environment :: Plugins",
         "Environment :: Web Environment",
