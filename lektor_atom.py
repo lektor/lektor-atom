@@ -6,6 +6,7 @@ from datetime import date
 from datetime import datetime
 
 import click
+from feedgenerator.django.utils.feedgenerator import Atom1Feed
 from lektor.build_programs import BuildProgram
 from lektor.context import get_ctx
 from lektor.context import url_to
@@ -14,9 +15,7 @@ from lektor.environment import Expression
 from lektor.pluginsystem import Plugin
 from lektor.sourceobj import VirtualSourceObject
 from lektor.utils import build_url
-
 from markupsafe import escape
-from feedgenerator.django.utils.feedgenerator import Atom1Feed
 
 
 PY2 = sys.version_info[0] == 2
