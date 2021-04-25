@@ -2,6 +2,12 @@ import os
 
 from lxml import objectify
 
+try:
+    from urllib.parse import urljoin
+except ImportError:
+    # python 2
+    from urlparse import urljoin
+
 
 def test_typical_feed(pad, builder):
     failures = builder.build_all()
@@ -90,13 +96,13 @@ def test_virtual_resolver(pad, builder):
     # Pass a virtual source path to url_to().
     feed_path = "/typical-blog@atom/feed-one"
     url_path = pad.get("typical-blog/post1").url_to(feed_path)
-    assert url_path == "../../typical-blog/feed.xml"
+    assert urljoin("typical-blog/post1/", url_path) == "typical-blog/feed.xml"
 
     # Pass the AtomFeedSource instance itself to url_to().
     feed_instance = pad.get(feed_path)
     assert feed_instance and feed_instance.feed_name == "Feed One"
     url_path = pad.get("typical-blog/post1").url_to(feed_instance)
-    assert url_path == "../../typical-blog/feed.xml"
+    assert urljoin("typical-blog/post1/", url_path) == "typical-blog/feed.xml"
 
     feed_instance = pad.get("typical-blog2@atom/feed-two")
     assert feed_instance and feed_instance.feed_name == "feed-two"
@@ -104,7 +110,7 @@ def test_virtual_resolver(pad, builder):
     feed_instance = pad.get("custom-blog@atom/feed-three")
     assert feed_instance and feed_instance.feed_name == "Feed Three"
     url_path = pad.get("custom-blog/post1").url_to(feed_instance)
-    assert url_path == "../../custom-blog/atom.xml"
+    assert urljoin("custom-blog/post1/", url_path) == "custom-blog/atom.xml"
 
 
 def test_dependencies(pad, builder, reporter):
