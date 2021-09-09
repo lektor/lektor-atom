@@ -9,18 +9,11 @@ jobs:
     runs-on: ubuntu-latest
     steps:
     - uses: actions/checkout@v2
-    - name: Set up Python
-      uses: actions/setup-python@v1
-      with:
-        python-version: '3.8'
+    - uses: actions/setup-python@v2
     - name: Install dependencies
-      run: |
-        python -m pip install --upgrade check_manifest pip setuptools twine wheel
+      run: python -m pip install tox twine
     - name: Build release artefacts
-      run: |
-        check-manifest -v
-        python setup.py sdist bdist_wheel
-        python -m twine check dist/*
+      run: tox -e build-dist
     - name: Publish release
       env:
         TWINE_USERNAME: __token__
