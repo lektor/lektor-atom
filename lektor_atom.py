@@ -44,6 +44,9 @@ class AtomFeedSource(VirtualSourceObject):
 
         return build_url([self.parent.url_path, self.filename])
 
+    def iter_source_filenames(self):
+        return self.record.iter_source_filenames()
+
     def __getattr__(self, item):
         try:
             return self.plugin.get_atom_config(self.feed_id, item)
