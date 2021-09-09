@@ -14,8 +14,6 @@ with open("lektor_atom.py", "rb") as f:
         ast.literal_eval(_description_re.search(f.read().decode("utf-8")).group(1))
     )
 
-tests_require = (["lxml", "pytest"],)
-
 
 setup(
     author=u"A. Jesse Jiryu Davis",
@@ -38,6 +36,4 @@ setup(
         "License :: OSI Approved :: MIT License",
     ],
     entry_points={"lektor.plugins": ["atom = lektor_atom:AtomPlugin"]},
-    extras_require={"test": tests_require},
-    tests_require=tests_require,
 )
