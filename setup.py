@@ -27,7 +27,8 @@ setup(
     name="lektor-atom",
     py_modules=["lektor_atom"],
     url="https://github.com/lektor/lektor-atom",
-    version="0.4.0",
+    use_scm_version=True,
+    setup_requires=["setuptools_scm"],
     classifiers=[
         "Environment :: Plugins",
         "Environment :: Web Environment",
