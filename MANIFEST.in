@@ -1,3 +1,4 @@
+exclude tox.ini
 include *.md
 include *.yaml
 include Makefile
