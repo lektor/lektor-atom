@@ -1,11 +1,10 @@
-dist
-build
-.tox
+*.egg-info
 *.pyc
 *.pyo
-*.egg-info
-.cache
-
 .DS_Store
-
+.cache
 .coverage
+.eggs
+.tox
+build
+dist

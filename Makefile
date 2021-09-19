@@ -1,2 +1,2 @@
 test:
-	tox -e py
+	tox
