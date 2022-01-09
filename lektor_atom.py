@@ -1,6 +1,4 @@
-# -*- coding: utf-8 -*-
 import hashlib
-import sys
 import uuid
 from datetime import date
 from datetime import datetime
@@ -16,14 +14,6 @@ from lektor.pluginsystem import Plugin
 from lektor.sourceobj import VirtualSourceObject
 from lektor.utils import build_url
 from markupsafe import escape
-
-
-PY2 = sys.version_info[0] == 2
-
-if PY2:
-    text_type = unicode
-else:
-    text_type = str
 
 
 class AtomFeedSource(VirtualSourceObject):
@@ -79,7 +69,7 @@ def get_item_body(item, field):
     if field not in item:
         raise RuntimeError("Body field %r not found in %r" % (field, item))
     with get_ctx().changed_base_url(item.url_path):
-        return text_type(escape(item[field]))
+        return str(escape(item[field]))
 
 
 def get_item_updated(item, field):
@@ -106,10 +96,10 @@ class AtomFeedBuilderProgram(BuildProgram):
         summary = get(blog, feed_source.blog_summary_field) or ""
         if hasattr(summary, "__html__"):
             subtitle_type = "html"
-            summary = text_type(summary.__html__())
+            summary = str(summary.__html__())
         else:
             subtitle_type = "text"
-        blog_author = text_type(get(blog, feed_source.blog_author_field) or "")
+        blog_author = str(get(blog, feed_source.blog_author_field) or "")
 
         feed = Atom1Feed(
             title=feed_source.feed_name,
@@ -145,7 +135,7 @@ class AtomFeedBuilderProgram(BuildProgram):
                     content=get_item_body(item, feed_source.item_body_field),
                     link=url_to(item, external=True),
                     unique_id=get_id(
-                        u"%s/%s" % (ctx.env.project.id, item["_path"].encode("utf-8"))
+                        "%s/%s" % (ctx.env.project.id, item["_path"].encode("utf-8"))
                     ),
                     author_name=item_author,
                     updateddate=get_item_updated(item, feed_source.item_date_field),
@@ -160,8 +150,8 @@ class AtomFeedBuilderProgram(BuildProgram):
 
 
 class AtomPlugin(Plugin):
-    name = u"Lektor Atom plugin"
-    description = u"Lektor plugin that generates Atom feeds."
+    name = "Lektor Atom plugin"
+    description = "Lektor plugin that generates Atom feeds."
 
     defaults = {
         "source_path": "/",
