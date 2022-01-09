@@ -95,10 +95,7 @@ class AtomFeedBuilderProgram(BuildProgram):
 
         summary = get(blog, feed_source.blog_summary_field) or ""
         if hasattr(summary, "__html__"):
-            subtitle_type = "html"
             summary = str(summary.__html__())
-        else:
-            subtitle_type = "text"
         blog_author = str(get(blog, feed_source.blog_author_field) or "")
 
         feed = Atom1Feed(
