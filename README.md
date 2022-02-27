@@ -6,7 +6,9 @@
 
 Builds one or more Atom XML feeds for your [Lektor](https://www.getlektor.com/)-based site.
 
-Inspired by the [atom-feed-support](https://github.com/lektor/lektor-website/tree/master/packages/atom-feed-support) plugin Armin Ronacher wrote for the Lektor official blog.
+Inspired by the [atom-feed-support] plugin Armin Ronacher wrote for the Lektor official blog.
+
+[atom-feed-support]: https://github.com/lektor/lektor-website/tree/b3ff365a8ae6a9486fad40fbdb6f8afc95ffa064/packages/atom-feed-support
 
 ## Installation
 
